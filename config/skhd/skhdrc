@@ -1,0 +1,36 @@
+# Navigation
+alt - j : yabai -m window --focus north
+alt - k : yabai -m window --focus south
+alt - h : yabai -m window --focus west
+alt - l : yabai -m window --focus east
+
+# Window Movement
+shift + alt - j : yabai -m window --move north
+shift + alt - k : yabai -m window --move south
+shift + alt - h : yabai -m window --move west
+shift + alt - l : yabai -m window --move east
+
+shift + alt - r : yabai -m window --rotate 90
+shift + alt - y : yabai -m window --mirror y-axis
+shift + alt - x : yabai -m window --mirror x-axis
+
+shift + alt - f : yabai -m window --toggle float
+
+# Window Resize
+ctrl + alt - j : yabai -m window --resize top:10
+ctrl + alt - k : yabai -m window --resize bottom:10
+ctrl + alt - h : yabai -m window --resize left:10
+ctrl + alt - l : yabai -m window --resize right:10
+
+# Open Applications
+alt - return : open -a Kitty
+alt - b : open -a Firefox
+
+# Close Window
+alt - q : yabai -m window --close
+
+# Toggle Fullscreen
+alt - f : yabai -m window --toggle zoom-fullscreen
+
+# Toggle float
+alt - t : yabai -m window --toggle float

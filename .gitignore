@@ -1,0 +1,17 @@
+config/github-copilot/
+config/linearmouse/
+config/spotify-tui/client.yml
+config/nvim/lazy-lock.json
+
+# Ignore cache and unnecessary files in /config/zsh/
+config/zsh/.zcompcache/
+config/zsh/.zcompdump
+config/zsh/.zsh_sessions/
+config/zsh/.zsh_history
+
+# Ignore temporary or backup files
+*.swp
+*.bak
+*.tmp
+*.DS_Store
+
