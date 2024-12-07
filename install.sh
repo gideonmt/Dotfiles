@@ -28,16 +28,60 @@ brew tap koekeishiya/formulae
 echo "Installing Formulae..."
 
 #### Essentials
-brew install git fzf neovim lua python-tk@3.12 pipx rust perl zsh-autosuggestions zsh-syntax-highlighting zsh-completions thefuck tree watch yarn
+brew install git
+brew install tree
+brew install watch
+brew install pipx
+brew install python-tk@3.12
+
+#### Zsh Essentials
+brew install zsh-completions
+brew install zsh-autosuggestions
+brew install zsh-syntax-highlighting
+brew install thefuck
+brew install powerlevel10k
 
 #### Terminal Utilities
-brew install bat btop neofetch powerlevel10k lf skhd yabai spotify-tui spotifyd switchaudio-osx
+brew install bat
+brew install lf
+brew install fzf
+brew install duti
 
-#### Development
-brew install deno cmake glfw openvino gtk+3 hugo ffmpeg imagemagick scipy py3cairo poppler typescript zig
+#### Programming Languages
+brew install python
+brew install lua
+brew install rust
+brew install zig
+brew install perl
+brew install node
+brew install typescript
 
-#### Extras/For Fun
-brew install fortune cowsay-org 
+#### Programming Tools
+brew install cmake
+brew install glfw
+brew install openvino
+brew install gtk+3
+brew install hugo
+brew install scipy
+brew install py3cairo
+brew install poppler
+brew install yarn
+
+#### Window Management
+brew install skhd
+brew install yabai
+
+#### Media Tools
+brew install ffmpeg
+brew install imagemagick
+brew install switchaudio-osx
+brew install spotify-tui
+brew install spotifyd
+
+#### For Fun
+brew install fortune
+brew install cowsay-org
+brew install neofetch
 
 ### Fonts
 echo "Installing Fonts..."
