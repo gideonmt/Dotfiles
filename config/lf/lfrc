@@ -11,15 +11,15 @@ set icons true
 
 # Custom Functions
 cmd mkdir ${{
-  printf "Directory Name: "
-  read ans
-  mkdir $ans
+    printf "Directory Name: "
+    read ans
+    mkdir $ans
 }}
 
 cmd mkfile ${{
-  printf "File Name: "
-  read ans
-  touch $ans
+    printf "File Name: "
+    read ans
+    touch $ans
 }}
 
 cmd setwallpaper ${{
@@ -30,13 +30,25 @@ cmd setwallpaper ${{
 
 # Archive bindings
 cmd unarchive ${{
-  case "$f" in
-      *.zip) unzip "$f" ;;
-      *.tar.gz) tar -xzvf "$f" ;;
-      *.tar.bz2) tar -xjvf "$f" ;;
-      *.tar) tar -xvf "$f" ;;
-      *) echo "Unsupported format" ;;
-  esac
+    case "$f" in
+        *.zip) unzip "$f" ;;
+        *.tar.gz) tar -xzvf "$f" ;;
+        *.tar.bz2) tar -xjvf "$f" ;;
+        *.tar) tar -xvf "$f" ;;
+        *) echo "Unsupported format" ;;
+    esac
+}}
+
+cmd archive_zip ${{
+    zip -r "$f.zip" "$f"
+}}
+
+cmd archive_tar ${{
+    tar -cvf "$f.tar" "$f"
+}}
+
+cmd archive_tar_gz ${{
+    tar -czvf "$f.tar.gz" "$f"
 }}
 
 # Trash bindings
@@ -45,50 +57,50 @@ cmd trash ${{
 }}
 
 cmd force_delete ${{
-  rm -rf "$f"
+    rm -rf "$f"
 }}
 
-cmd open_terminal ${{
-  if [ -d "$f" ]; then
-    open -a Kitty "$f"
-  else
-    open -a Kitty "$(dirname "$f")"
-  fi
-}}
-
-cmd move_to_dir ${{
-  printf "Move $f to: "
-  read ans
-  mv "$f" "$ans"
-  printf "mv \"$f\" \"$ans\""
+cmd quit_and_cd &{{
+    pwd > "$LF_CD_FILE"
+    lf -remote "send $id quit"
 }}
 
 # Bindings
 map d
 map m
 
-map oc $codium "$f"
+# Open
 map op $open -a Preview "$f"
-map ot open_terminal
 map ov $nvim "$f"
 
-map au unarchive
-map ae $wine "$f"
+# Archive
+map za unarchive
+map zz archive_zip
+map zt archive_tar
+map zg archive_tar_gz
 
-map . set hidden!
+# Trash
 map dd trash
 map dD force_delete
+
+map . set hidden!
+
+# Copy, paste, cut, select
 map v paste
 map x cut
 map c copy
 map s select
-map <enter> open
+map C clear
+
 map R reload
+
+# Make
 map mf mkfile
 map md mkdir
+
+# Misc
 map bg setwallpaper
-map C clear
-map mv move_to_dir
+map Q quit_and_cd
 
 # Movement
 map gd cd ~/Desktop
