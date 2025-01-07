@@ -37,3 +37,12 @@ eval $(thefuck --alias fk)
 
 # lf
 source ~/.config/lf/lf.zsh
+
+# Created by `pipx` on 2024-12-25 13:14:54
+export PATH="$PATH:/Users/gideonmarcus-trask/.local/bin"
+
+# aliases
+alias quote='fortune | cowsay -s | lolcat -F 0.3'
+
+# default editor
+export EDITOR='nvim'

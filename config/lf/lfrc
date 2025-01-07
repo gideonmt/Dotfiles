@@ -10,7 +10,7 @@ set ignorecase true
 set icons true
 
 # Custom Functions
-cmd mkdir ${{
+cmd mkdir %{{
     printf "Directory Name: "
     read ans
     mkdir $ans
@@ -35,6 +35,7 @@ cmd unarchive ${{
         *.tar.gz) tar -xzvf "$f" ;;
         *.tar.bz2) tar -xjvf "$f" ;;
         *.tar) tar -xvf "$f" ;;
+        *.jar) tar -xJvf "$f" ;;
         *) echo "Unsupported format" ;;
     esac
 }}
@@ -63,6 +64,30 @@ cmd force_delete ${{
 cmd quit_and_cd &{{
     pwd > "$LF_CD_FILE"
     lf -remote "send $id quit"
+}}
+
+cmd open ${{
+    case "$(file --mime-type -b "$f")" in
+        text/* | application/json | application/xml | application/javascript | application/x-shellscript)
+            nvim "$f"
+            ;;
+        image/*)
+            open "$f"
+            ;;
+        inode/x-empty)
+            case "$f" in
+                *.zip | *.tar | *.tar.gz | *.tar.bz2)
+                    unarchive
+                    ;;
+                *)
+                    nvim "$f"
+                    ;;
+            esac
+            ;;
+        *)
+            open "$f"
+            ;;
+    esac
 }}
 
 # Bindings

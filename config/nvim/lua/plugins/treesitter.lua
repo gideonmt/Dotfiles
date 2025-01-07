@@ -20,6 +20,7 @@ return {
                "typescript",
                "tsx",
                "dockerfile",
+               "java",
             },
             highlight = { enable = true },
             indent = { enable = true },

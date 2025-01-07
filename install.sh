@@ -31,8 +31,6 @@ echo "Installing Formulae..."
 brew install git
 brew install tree
 brew install watch
-brew install pipx
-brew install python-tk@3.12
 
 #### Zsh Essentials
 brew install zsh-completions
@@ -66,6 +64,7 @@ brew install scipy
 brew install py3cairo
 brew install poppler
 brew install yarn
+brew install pipx
 
 #### Window Management
 brew install skhd

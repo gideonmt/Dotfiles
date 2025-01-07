@@ -105,24 +105,4 @@ return {
          end
       end,
    },
-   {
-      "williamboman/mason.nvim",
-      opts = {},
-   },
-   {
-      "williamboman/mason-lspconfig.nvim",
-      opts = {
-         ensure_installed = {
-            "lua_ls",
-            "clangd",
-            "html",
-            "cssls",
-            "ts_ls",
-            "eslint",
-            "tailwindcss",
-            "pyright",
-            "gopls",
-         },
-      },
-   },
 }
