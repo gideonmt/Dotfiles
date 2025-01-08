@@ -54,11 +54,11 @@ cmd archive_tar_gz ${{
 
 # Trash bindings
 cmd trash ${{
-    mv "$f" ~/.trash
+    mv "$fx" ~/.trash
 }}
 
 cmd force_delete ${{
-    rm -rf "$f"
+    rm -rf "$fx"
 }}
 
 cmd quit_and_cd &{{
@@ -110,12 +110,15 @@ map dD force_delete
 
 map . set hidden!
 
-# Copy, paste, cut, select
+# Copy, paste, cut
 map v paste
 map x cut
 map c copy
-map s select
 map C clear
+
+# Toggle/selection
+map u unselect
+map U invert
 
 map R reload
 
@@ -132,5 +135,6 @@ map gd cd ~/Desktop
 map gD cd ~/Documents
 map gg cd ~/Downloads
 map gp cd ~/Pictures
-map gc cd ~/.config
+map gc cd ~/Dotfiles
+map ga cd ~/Desktop/School/APCS
 map gt cd ~/.Trash

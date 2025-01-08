@@ -1,3 +1,7 @@
 #!/usr/bin/env bash
 
 kitty +kitten icat --clear --stdin no --silent --transfer-mode file < /dev/null > /dev/tty
+
+# Delete the cached thumbnail
+TEMPDIR="${HOME}/Library/Caches/lf"
+rm -f "$TEMPDIR/thumbnail.png"
