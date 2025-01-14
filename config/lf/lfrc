@@ -16,7 +16,7 @@ cmd mkdir %{{
     mkdir $ans
 }}
 
-cmd mkfile ${{
+cmd mkfile %{{
     printf "File Name: "
     read ans
     touch $ans
