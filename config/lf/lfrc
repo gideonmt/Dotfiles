@@ -111,14 +111,14 @@ map dD force_delete
 map . set hidden!
 
 # Copy, paste, cut
-map v paste
+map p paste
 map x cut
 map c copy
-map C clear
+map C :clear; unselect
 
 # Toggle/selection
-map u unselect
-map U invert
+map V invert
+map v invert-below
 
 map R reload
 

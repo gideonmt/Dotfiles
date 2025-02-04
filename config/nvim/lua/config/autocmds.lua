@@ -123,3 +123,7 @@ vim.api.nvim_create_autocmd("BufEnter", {
       )
    end,
 })
+
+vim.keymap.set('n', '<D-Left>', ':tabprevious<CR>', { noremap = true, silent = true })
+vim.keymap.set('n', '<D-Right>', ':tabnext<CR>', { noremap = true, silent = true })
+
