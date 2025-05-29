@@ -30,7 +30,7 @@ case "$(basename "$file" | tr '[A-Z]' '[a-z]')" in
         pdftocairo -png -singlefile -rx 75 -ry 75 "$file" "$thumbnail"
         preview "${thumbnail}.png"
         ;;
-    *.jpg|*.jpeg|*.png|*.webp)
+    *.jpg|*.jpeg|*.png|*.webp|*.gif)
         preview "$file"
         ;;
     *.ttf|*.otf|*.woff)

@@ -33,8 +33,6 @@ yabai -m rule --add app="^System Settings$" manage=off
 yabai -m rule --add app="^System Preferences$" manage=off
 yabai -m rule --add app="^Activity Monitor$" manage=off
 yabai -m rule --add app="^Finder$" manage=off
-yabai -m rule --add app="^Discord$" manage=off
-yabai -m rule --add app="^Vesktop$" manage=off              
 yabai -m rule --add app="^Messages$" manage=off
 yabai -m rule --add app="^Firefox$" title="Library" manage=off
 yabai -m rule --add app="^Calendar$" manage=off
@@ -45,4 +43,3 @@ yabai -m config layout bsp
 echo "yabai configuration loaded.."
 
 borders active_color=0xff525252 inactive_color=0x80525252 style=rounded hidpi=off width=3.0 blacklist="iPhone Mirroring" &
-

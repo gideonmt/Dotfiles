@@ -2,8 +2,6 @@
 set previewer ~/.config/lf/preview
 set cleaner ~/.config/lf/cleaner
 
-set icons true
-
 # Basic Settings
 set hidden false
 set ignorecase true
@@ -28,7 +26,6 @@ cmd setwallpaper ${{
     betterlockscreen -u "$f" --fx
 }}
 
-# Archive bindings
 cmd unarchive ${{
     case "$f" in
         *.zip) unzip "$f" ;;
@@ -52,7 +49,6 @@ cmd archive_tar_gz ${{
     tar -czvf "$f.tar.gz" "$f"
 }}
 
-# Trash bindings
 cmd trash ${{
     mv "$fx" ~/.trash
 }}
@@ -90,6 +86,11 @@ cmd open ${{
     esac
 }}
 
+# fmt
+# set promptfmt "\033[34;1m%d\033[0m\033[1m%f\033[0m %S \033[32;1m%u@%h\033[0m"
+set rulerfmt "  %a|  %p|  \033[7;31m %m \033[0m|  \033[7;33m %c \033[0m|  \033[7;35m %s \033[0m|  \033[7;34m %f \033[0m|  %i/%t" 
+set statfmt "\033[36m%p\033[0m| %c| %u| %g| %s| %t| -> %l"
+
 # Bindings
 map d
 map m
@@ -97,6 +98,7 @@ map m
 # Open
 map op $open -a Preview "$f"
 map ov $nvim "$f"
+map of $open -a Firefox "$f"
 
 # Archive
 map za unarchive
