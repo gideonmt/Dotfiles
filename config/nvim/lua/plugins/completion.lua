@@ -20,33 +20,53 @@ return {
          local lspkind = require("lspkind")
          local luasnip = require("luasnip")
 
-         -- LuaSnip jump helpers
-         vim.keymap.set({ "i", "s" }, "<C-L>", function()
-            luasnip.jump(1)
-         end, { silent = true })
-         vim.keymap.set({ "i", "s" }, "<C-J>", function()
-            luasnip.jump(-1)
-         end, { silent = true })
+         -- Load custom snippets
+         require("config.snippets")
 
          cmp.setup({
             snippet = {
                expand = function(args)
-                  require("luasnip").lsp_expand(args.body)
+                  luasnip.lsp_expand(args.body)
                end,
             },
             window = {
                completion = cmp.config.window.bordered(),
                documentation = cmp.config.window.bordered(),
             },
-            mapping = cmp.mapping.preset.insert({
+            mapping = {
+               ["<CR>"] = cmp.mapping(function(fallback)
+                  if cmp.visible() then
+                     cmp.confirm({ select = true })
+                  else
+                     fallback() -- newline
+                  end
+               end, { "i", "s" }),
+
+               ["<Tab>"] = cmp.mapping(function(fallback)
+                  if cmp.visible() then
+                     cmp.select_next_item()
+                  elseif luasnip.expand_or_jumpable() then
+                     luasnip.expand_or_jump()
+                  else
+                     fallback() -- real tab
+                  end
+               end, { "i", "s" }),
+
+               ["<S-Tab>"] = cmp.mapping(function(fallback)
+                  if cmp.visible() then
+                     cmp.select_prev_item()
+                  elseif luasnip.jumpable(-1) then
+                     luasnip.jump(-1)
+                  else
+                     fallback()
+                  end
+               end, { "i", "s" }),
+
                ["<C-b>"] = cmp.mapping.scroll_docs(-4),
                ["<C-f>"] = cmp.mapping.scroll_docs(4),
-               ["<CR>"] = cmp.mapping.confirm({ select = true }),
-               ["<Tab>"] = cmp.mapping.select_next_item(),
-               ["<S-Tab>"] = cmp.mapping.select_prev_item(),
                ["<Down>"] = cmp.mapping.select_next_item(),
                ["<Up>"] = cmp.mapping.select_prev_item(),
-            }),
+            },
             sources = cmp.config.sources({
                { name = "copilot", priority = 1000, group_index = 1 },
                { name = "nvim_lsp", group_index = 2 },
@@ -83,18 +103,9 @@ return {
                   end,
                }),
             },
-            enabled = function()
-               local context = require("cmp.config.context")
-               if vim.api.nvim_get_mode().mode == "c" then
-                  return true
-               else
-                  return not context.in_treesitter_capture("comment")
-                     and not context.in_syntax_group("Comment")
-               end
-            end,
          })
 
-         -- Cmdline and search completion
+         -- Cmdline completion
          cmp.setup.cmdline({ "/", "?" }, {
             mapping = cmp.mapping.preset.cmdline(),
             sources = { { name = "buffer" } },
@@ -109,7 +120,7 @@ return {
       end,
    },
 
-   -- Copilot (core, disable floating suggestions, only use cmp menu)
+   -- Copilot core (only through cmp)
    {
       "zbirenbaum/copilot.lua",
       cmd = "Copilot",
@@ -118,6 +129,11 @@ return {
          require("copilot").setup({
             suggestion = { enabled = false },
             panel = { enabled = false },
+            filetypes = {
+               markdown = true,
+               ["*"] = true,
+               gitcommit = false,
+            },
          })
       end,
    },
