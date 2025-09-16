@@ -43,6 +43,7 @@ export PATH="$PATH:/Users/gideonmarcus-trask/.local/bin"
 
 # aliases
 alias quote='fortune | cowsay -s | lolcat -F 0.3'
+alias dsa='cd ~/Desktop/School/DSA'
 
 # default editor
 export EDITOR='nvim'
