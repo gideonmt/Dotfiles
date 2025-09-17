@@ -80,7 +80,6 @@ return {
             formatting = {
                format = lspkind.cmp_format({
                   mode = "symbol_text",
-                  maxwidth = 50,
                   ellipsis_char = "...",
                   menu = {
                      buffer = "[Buffer]",
@@ -93,10 +92,11 @@ return {
                   },
                   before = function(entry, vim_item)
                      if entry.source.name == "copilot" then
-                        if #entry.completion_item.label < 60 then
-                           vim_item.kind = " [Copilot] Short"
+                        local label = entry.completion_item.newText or ""
+                        if #label > 60 then
+                           vim_item.kind = " Short"
                         else
-                           vim_item.kind = " [Copilot] Long"
+                           vim_item.kind = " Long"
                         end
                      end
                      return vim_item

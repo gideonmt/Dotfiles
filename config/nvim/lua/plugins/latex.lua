@@ -1,27 +1,24 @@
 return {
    {
       "lervag/vimtex",
-      config = function()
-         vim.cmd([[
-            filetype plugin indent on
-            let g:vimtex_view_method = 'zathura'
-            let g:vimtex_quickfix_mode = 0
-            let g:vimtex_mappings_enabled = 1
-            let g:vimtex_compiler_latexmk = {
-               \ 'build_dir' : '',
-               \ 'callback' : 1,
-               \ 'continuous' : 1,
-               \ 'executable' : 'latexmk',
-               \ 'options' : [
-               \   '-pdf',
-               \   '-shell-escape',
-               \   '-verbose',
-               \   '-file-line-error',
-               \   '-synctex=1',
-               \   '-interaction=nonstopmode',
-               \ ],
-               \}
-         ]])
+      ft = { "tex" },
+      Lazy = false,
+      init = function()
+         vim.g.tex_flavor = "latex"
+         vim.g.vimtex_view_method = "skim"
+         vim.g.vimtex_compiler_method = "latexmk"
+         vim.g.vimtex_syntax_conceal_disable = 1 -- disable conceal
+         vim.g.vimtex_compiler_latexmk = {
+            build_dir = "",
+            callback = 1,
+            continuous = 1,
+            executable = "latexmk",
+            options = {
+               "-pdf",
+               "-interaction=nonstopmode",
+               "-synctex=1",
+            },
+         }
       end,
    },
    {

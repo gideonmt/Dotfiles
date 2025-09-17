@@ -40,7 +40,7 @@
 └── stylua.toml
 ```
 
-## Plugins I use
+## Plugins
 
 | Plugin | Location | Description |
 |--------|----------|-------------|
@@ -82,7 +82,7 @@
 |nacro90/numb.nvim|numb.lua|Peek lines when entering line numbers.|
 |stevearc/oil.nvim|oil.lua|File explorer.|
 |NStefan002/screenkey.nvim|screenkey.lua|Display keystrokes on screen.|
-|L3MON4D3/LuaSnip|telescope.lua|Snippet engine.|
+|L3MON4D3/LuaSnip|completion.lua|Snippet engine.|
 |nvim-telescope/telescope.nvim|telescope.lua|Fuzzy finder.|
 |piersolenski/import.nvim|telescope.lua|Import management.|
 |nvim-treesitter/nvim-treesitter|treesitter.lua|Syntax highlighting and more.|

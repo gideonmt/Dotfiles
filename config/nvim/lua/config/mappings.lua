@@ -26,3 +26,7 @@ map({ "n" }, "<Leader>Y", '"+y$', {})
 
 map({ "n", "v" }, "<Leader>p", '"+p', {})
 map({ "n", "v" }, "<Leader>P", '"+P', {})
+
+-- vimtex
+map("n", "<Leader>ll", ":VimtexCompile<CR>", {})
+map("n", "<Leader>lv", ":VimtexView<CR>", {})
