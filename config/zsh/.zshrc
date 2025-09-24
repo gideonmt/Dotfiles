@@ -45,9 +45,9 @@ export PATH="$PATH:/Users/gideonmarcus-trask/.local/bin"
 alias quote='fortune | cowsay -s | lolcat -F 0.3'
 alias dsa='cd ~/Desktop/School/DSA'
 
-alias todo="python3 ~/bin/todo.py"
-alias tlog="python3 ~/bin/tlog.py"
-alias goals="python3 ~/bin/goals.py"
+alias todo="python3 ~/Dotfiles/bin/todo.py"
+alias tlog="python3 ~/Dotfiles/bin/tlog.py"
+alias goals="python3 ~/Dotfiles/bin/goals.py"
 
 # default editor
 export EDITOR='nvim'
