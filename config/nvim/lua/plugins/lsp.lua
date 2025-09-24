@@ -1,12 +1,26 @@
 --- LSP configuration
 
+-- global diagnostic keymaps
 vim.keymap.set("n", "<Leader>d", vim.diagnostic.open_float)
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev)
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next)
+
+-- diagnostic display config
 vim.diagnostic.config({
    float = { border = "rounded" },
+   virtual_text = false,
+   signs = {
+      text = {
+         [vim.diagnostic.severity.ERROR] = "",
+         [vim.diagnostic.severity.WARN] = "",
+         [vim.diagnostic.severity.HINT] = "",
+         [vim.diagnostic.severity.INFO] = "",
+      },
+   },
+   underline = true,
 })
 
+-- LspAttach autocmd for buffer-local keymaps
 vim.api.nvim_create_autocmd("LspAttach", {
    group = vim.api.nvim_create_augroup("UserLspConfig", {}),
    callback = function(ev)
@@ -22,7 +36,7 @@ vim.api.nvim_create_autocmd("LspAttach", {
          "n",
          "<Leader>a",
          vim.lsp.buf.code_action,
-         { noremap = true, silent = true }
+         { buffer = ev.buf, noremap = true, silent = true }
       )
    end,
 })
@@ -52,7 +66,9 @@ return {
       dependencies = { "hrsh7th/cmp-nvim-lsp" },
       config = function()
          local capabilities = require("cmp_nvim_lsp").default_capabilities()
-         require("lspconfig").lua_ls.setup({
+
+         -- Lua LS
+         vim.lsp.config("lua_ls", {
             capabilities = capabilities,
             settings = {
                Lua = {
@@ -63,46 +79,30 @@ return {
             },
          })
 
-         require("lspconfig").tailwindcss.setup({
+         -- TailwindCSS
+         vim.lsp.config("tailwindcss", {
             on_attach = function()
                require("tailwindcss-colors").buf_attach(0)
             end,
          })
 
-         for _, language in pairs(languages) do
-            require("lspconfig")[language].setup({
+         -- All other servers
+         for _, language in ipairs(languages) do
+            vim.lsp.config(language, {
                capabilities = capabilities,
             })
          end
 
+         -- Enable all servers
+         vim.lsp.enable(vim.list_extend({ "lua_ls", "tailwindcss" }, languages))
+
+         -- Extra keymap for eslint
          vim.keymap.set(
             "n",
             "<Leader>e",
             ":EslintFixAll<CR>",
             { noremap = true, silent = true }
          )
-
-         vim.lsp.handlers["textDocument/publishDiagnostics"] =
-            vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-               virtual_text = false,
-            })
-
-         local symbols =
-            { Error = "", Warn = "", Info = "", Hint = "" }
-         for name, icon in pairs(symbols) do
-            local hl = "DiagnosticSign" .. name
-            vim.fn.sign_define(hl, { text = icon, numhl = hl, texthl = hl })
-         end
-
-         local hl_groups = {
-            "DiagnosticUnderlineError",
-            "DiagnosticUnderlineWarn",
-            "DiagnosticUnderlineInfo",
-            "DiagnosticUnderlineHint",
-         }
-         for _, hl in ipairs(hl_groups) do
-            vim.cmd.highlight(hl .. " gui=undercurl")
-         end
       end,
    },
 }

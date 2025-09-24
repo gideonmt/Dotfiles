@@ -24,6 +24,7 @@ return {
                "latex",
                "bibtex",
                "json",
+               "haskell",
             },
             highlight = { enable = true },
             indent = { enable = true },
