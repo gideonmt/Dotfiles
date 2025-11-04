@@ -53,3 +53,6 @@ alias goals="python3 ~/Dotfiles/bin/goals.py"
 export EDITOR='nvim'
 
 [ -f "/Users/gideonmarcus-trask/.ghcup/env" ] && . "/Users/gideonmarcus-trask/.ghcup/env" # ghcup-env
+
+# use the homebrew install of ruby
+alias ruby='/opt/homebrew/opt/ruby/bin/ruby'

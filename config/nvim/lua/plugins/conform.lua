@@ -4,13 +4,13 @@ return {
       formatters_by_ft = {
          lua = { "stylua" },
          python = { "black" },
-         javascript = { "prettier" },
-         javascriptreact = { "prettier" },
-         typescript = { "prettier" },
-         typescriptreact = { "prettier" },
       },
       format_after_save = {
-         lsp_format = "fallback",
+         -- disable for css and scss
+         ["css"] = false,
+         ["scss"] = false,
+         -- enable for all other filetypes
+         ["*"] = true,
       },
    },
 }

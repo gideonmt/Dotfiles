@@ -99,15 +99,31 @@ vim.api.nvim_create_autocmd("BufEnter", {
    end,
 })
 
+-- unmap arrow keys to force using hjkl
+local function warn_arrows()
+   vim.notify("Use hjkl instead of arrow keys", vim.log.levels.WARN)
+end
+
+for _, key in ipairs({ "<Up>", "<Down>", "<Left>", "<Right>" }) do
+   vim.keymap.set(
+      { "n", "i", "v", "c" },
+      key,
+      warn_arrows,
+      { noremap = true, silent = true }
+   )
+end
+
+-- map left and right arrow keys to switch tabs in normal mode
 vim.keymap.set(
    "n",
-   "<D-Left>",
+   "<Left>",
    ":tabprevious<CR>",
    { noremap = true, silent = true }
 )
+
 vim.keymap.set(
    "n",
-   "<D-Right>",
+   "<Right>",
    ":tabnext<CR>",
    { noremap = true, silent = true }
 )

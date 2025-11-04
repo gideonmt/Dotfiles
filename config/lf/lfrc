@@ -6,6 +6,9 @@ set cleaner ~/.config/lf/cleaner
 set hidden false
 set ignorecase true
 set icons true
+set relativenumber true
+set number true
+set dircounts true
 
 # Custom Functions
 cmd mkdir %{{
@@ -65,7 +68,11 @@ cmd quit_and_cd &{{
 cmd open ${{
     case "$(file --mime-type -b "$f")" in
         text/* | application/json | application/xml | application/javascript | application/x-shellscript)
-            nvim "$f"
+            if [ -n "$fs" ]; then
+                nvim -p $fs
+            else
+                nvim -p "$f"
+            fi
             ;;
         image/*)
             open "$f"
@@ -76,7 +83,11 @@ cmd open ${{
                     unarchive
                     ;;
                 *)
-                    nvim "$f"
+                    if [ -n "$fs" ]; then
+                        nvim -p $fs
+                    else
+                        nvim -p "$f"
+                    fi
                     ;;
             esac
             ;;
@@ -97,7 +108,6 @@ map m
 
 # Open
 map op $open -a Preview "$f"
-map ov $nvim "$f"
 map of $open -a Firefox "$f"
 
 # Archive
@@ -115,8 +125,8 @@ map . set hidden!
 # Copy, paste, cut
 map p paste
 map x cut
-map c copy
-map C :clear; unselect
+map y copy
+map c :clear; unselect
 
 # Toggle/selection
 map V invert
@@ -132,6 +142,12 @@ map md mkdir
 map bg setwallpaper
 map Q quit_and_cd
 
+# Disable arrow keys
+map <up>    echo "\033[1;31m⚠ Use hjkl instead of arrow keys\033[0m"
+map <down>  echo "\033[1;31m⚠ Use hjkl instead of arrow keys\033[0m"
+map <left>  echo "\033[1;31m⚠ Use hjkl instead of arrow keys\033[0m"
+map <right> echo "\033[1;31m⚠ Use hjkl instead of arrow keys\033[0m"
+
 # Movement
 map gd cd ~/Desktop
 map gD cd ~/Documents
@@ -140,3 +156,4 @@ map gp cd ~/Pictures
 map gc cd ~/Dotfiles
 map ga cd ~/Desktop/School/APCS
 map gt cd ~/.Trash
+
