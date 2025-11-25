@@ -31,12 +31,17 @@ cmd setwallpaper ${{
 
 cmd unarchive ${{
     case "$f" in
-        *.zip) unzip "$f" ;;
-        *.tar.gz) tar -xzvf "$f" ;;
-        *.tar.bz2) tar -xjvf "$f" ;;
+        *.zip) unzip -o "$f" ;;
+        *.tar.gz | *.tgz) tar -xzvf "$f" ;;
+        *.tar.bz2 | *.tbz2) tar -xjvf "$f" ;;
+        *.tar.xz | *.txz) tar -xJvf "$f" ;;
         *.tar) tar -xvf "$f" ;;
-        *.jar) tar -xJvf "$f" ;;
-        *) echo "Unsupported format" ;;
+        *.jar) jar -xvf "$f" ;;
+        *.rar) unrar x "$f" ;;
+        *)
+            echo "Unsupported archive format: $f"
+            return 1
+            ;;
     esac
 }}
 
@@ -67,6 +72,9 @@ cmd quit_and_cd &{{
 
 cmd open ${{
     case "$(file --mime-type -b "$f")" in
+        application/pdf)
+            open -a Skim "$f"
+            ;;
         text/* | application/json | application/xml | application/javascript | application/x-shellscript)
             if [ -n "$fs" ]; then
                 nvim -p $fs
@@ -77,22 +85,15 @@ cmd open ${{
         image/*)
             open "$f"
             ;;
-        inode/x-empty)
-            case "$f" in
-                *.zip | *.tar | *.tar.gz | *.tar.bz2)
-                    unarchive
-                    ;;
-                *)
-                    if [ -n "$fs" ]; then
-                        nvim -p $fs
-                    else
-                        nvim -p "$f"
-                    fi
-                    ;;
-            esac
+        application/zip | application/x-tar | application/gzip | application/x-bzip2)
+            unarchive
             ;;
         *)
-            open "$f"
+            if [ -n "$fs" ]; then
+                nvim -p $fs
+            else
+                nvim -p "$f"
+            fi
             ;;
     esac
 }}
@@ -156,4 +157,3 @@ map gp cd ~/Pictures
 map gc cd ~/Dotfiles
 map ga cd ~/Desktop/School/APCS
 map gt cd ~/.Trash
-

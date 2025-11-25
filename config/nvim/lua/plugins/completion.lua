@@ -131,8 +131,8 @@ return {
             panel = { enabled = false },
             filetypes = {
                markdown = true,
-               ["*"] = true,
-               gitcommit = false,
+               ["*"] = false,
+               gitcommit = true,
             },
          })
       end,

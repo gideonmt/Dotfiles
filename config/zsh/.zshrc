@@ -45,14 +45,25 @@ export PATH="$PATH:/Users/gideonmarcus-trask/.local/bin"
 alias quote='fortune | cowsay -s | lolcat -F 0.3'
 alias dsa='cd ~/Desktop/School/DSA'
 
-alias todo="python3 ~/Dotfiles/bin/todo.py"
-alias tlog="python3 ~/Dotfiles/bin/tlog.py"
-alias goals="python3 ~/Dotfiles/bin/goals.py"
+#alias todo="python3 ~/Dotfiles/bin/todo.py"
+#alias tlog="python3 ~/Dotfiles/bin/tlog.py"
+#alias goals="python3 ~/Dotfiles/bin/goals.py"
+
+export PATH="$HOME/Dotfiles/bin:$PATH"
 
 # default editor
 export EDITOR='nvim'
 
 [ -f "/Users/gideonmarcus-trask/.ghcup/env" ] && . "/Users/gideonmarcus-trask/.ghcup/env" # ghcup-env
 
-# use the homebrew install of ruby
-alias ruby='/opt/homebrew/opt/ruby/bin/ruby'
+
+# pnpm
+export PNPM_HOME="/Users/gideonmarcus-trask/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
+
+
+export QTROOT=/opt/Qt/6.2.4

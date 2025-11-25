@@ -1,0 +1,405 @@
+#!/bin/zsh
+# Enhanced LaTeX management tool for Harvey Mudd coursework
+
+LATEX_ROOT="$HOME/Documents/latex"
+TEMPLATES_DIR="$LATEX_ROOT/templates"
+COURSES_DIR="$LATEX_ROOT/courses"
+
+# Colors for output - using tput for better compatibility
+if command -v tput &> /dev/null && [[ -t 1 ]]; then
+    RED=$(tput setaf 1)
+    GREEN=$(tput setaf 2)
+    YELLOW=$(tput setaf 3)
+    BLUE=$(tput setaf 4)
+    BOLD=$(tput bold)
+    NC=$(tput sgr0)
+else
+    RED=''
+    GREEN=''
+    YELLOW=''
+    BLUE=''
+    BOLD=''
+    NC=''
+fi
+
+# Get current semester
+get_semester() {
+    local month=$(date +%-m)
+    local year=$(date +%Y)
+    
+    if (( month >= 8 )); then
+        echo "fall-$year"
+    elif (( month >= 1 && month <= 5 )); then
+        echo "spring-$year"
+    else
+        echo "summer-$year"
+    fi
+}
+
+# Show usage
+show_help() {
+    cat << EOF
+${BLUE}ltx${NC} - LaTeX document management tool
+
+${YELLOW}Usage:${NC}
+  ltx new <type> <course> <filename>    Create new document
+  ltx open [course] [pattern]           Open recent document(s)
+  ltx list [course]                     List all documents
+  ltx clean [course]                    Clean LaTeX auxiliary files
+  ltx rm [course] [pattern]            Remove document(s)
+  ltx courses                           List all courses
+  ltx compile [file]                    Compile current/specified file
+  ltx template <name>                   Edit a template
+  ltx stats                             Show document statistics
+
+${YELLOW}Types:${NC}
+  hw, notes, exam-prep, lab-report
+EOF
+}
+
+# Create new document
+cmd_new() {
+    local type=$1
+    local course=$2
+    local filename=$3
+    
+    if [[ -z "$type" || -z "$course" || -z "$filename" ]]; then
+        echo "${RED}Error:${NC} Usage: ltx new <type> <course> <filename>"
+        return 1
+    fi
+    
+    local semester=$(get_semester)
+    local course_dir="$COURSES_DIR/$semester/$course"
+    local dest_dir="$course_dir/${type}s"
+    
+    # Create directory
+    mkdir -p "$dest_dir"
+    
+    # Check template exists
+    if [[ ! -f "$TEMPLATES_DIR/$type.tex" ]]; then
+        echo "${RED}Error:${NC} Template $type.tex not found"
+        echo "Available templates:"
+        ls "$TEMPLATES_DIR"/*.tex 2>/dev/null | xargs -n 1 basename | sed 's/\.tex$//'
+        return 1
+    fi
+    
+    # Copy template
+    cp "$TEMPLATES_DIR/$type.tex" "$dest_dir/$filename.tex"
+    
+    echo "${GREEN}✓${NC} Created: $dest_dir/$filename.tex"
+    
+    # Open in neovim
+    cd "$dest_dir"
+    nvim "$filename.tex"
+}
+
+# Open recent files
+cmd_open() {
+    local course=$1
+    local pattern=$2
+    local semester=$(get_semester)
+    
+    # Check if fzf is available
+    if ! command -v fzf &> /dev/null; then
+        echo "${YELLOW}Warning:${NC} fzf not installed. Install with: brew install fzf"
+        echo "Falling back to listing files..."
+        cmd_list "$course"
+        return 1
+    fi
+    
+    # Build search path
+    if [[ -n "$course" ]]; then
+        local search_dir="$COURSES_DIR/$semester/$course"
+    else
+        local search_dir="$COURSES_DIR/$semester"
+    fi
+    
+    if [[ ! -d "$search_dir" ]]; then
+        echo "${RED}Error:${NC} Directory not found: $search_dir"
+        return 1
+    fi
+    
+    # Find and open file
+    local file
+    if [[ -n "$pattern" ]]; then
+        file=$(find "$search_dir" -name "*.tex" -type f | grep "$pattern" | fzf --preview 'head -20 {}')
+    else
+        file=$(find "$search_dir" -name "*.tex" -type f | fzf --preview 'head -20 {}')
+    fi
+    
+    if [[ -n "$file" ]]; then
+        cd "$(dirname "$file")"
+        nvim "$(basename "$file")"
+    fi
+}
+
+# List documents
+cmd_list() {
+    local course=$1
+    local semester=$(get_semester)
+    
+    if [[ -n "$course" ]]; then
+        local search_dir="$COURSES_DIR/$semester/$course"
+    else
+        local search_dir="$COURSES_DIR/$semester"
+    fi
+    
+    if [[ ! -d "$search_dir" ]]; then
+        echo "${RED}Error:${NC} No documents found for this semester"
+        return 1
+    fi
+    
+    echo "${BLUE}Documents in $semester:${NC}"
+    find "$search_dir" -name "*.tex" -type f | while read file; do
+        local rel_path=${file#$COURSES_DIR/$semester/}
+        local mod_time=$(stat -f "%Sm" -t "%b %d %H:%M" "$file")
+        echo "  $rel_path ${YELLOW}($mod_time)${NC}"
+    done
+}
+
+# Clean auxiliary files
+cmd_clean() {
+    local course=$1
+    local semester=$(get_semester)
+    
+    if [[ -n "$course" ]]; then
+        local clean_dir="$COURSES_DIR/$semester/$course"
+    else
+        local clean_dir="$COURSES_DIR/$semester"
+    fi
+    
+    if [[ ! -d "$clean_dir" ]]; then
+        echo "${RED}Error:${NC} Directory not found"
+        return 1
+    fi
+    
+    echo "${YELLOW}Cleaning auxiliary files in $clean_dir...${NC}"
+    
+    local count=0
+    for ext in aux log out synctex.gz fdb_latexmk fls toc lof lot bbl blg; do
+        while IFS= read -r file; do
+            rm "$file"
+            ((count++))
+        done < <(find "$clean_dir" -name "*.$ext" -type f)
+    done
+    
+    echo "${GREEN}✓${NC} Removed $count auxiliary files"
+}
+
+# List courses
+cmd_courses() {
+    local semester=$(get_semester)
+    
+    if [[ ! -d "$COURSES_DIR/$semester" ]]; then
+        echo "${YELLOW}No courses found for $semester${NC}"
+        return 0
+    fi
+    
+    echo "${BLUE}Courses in $semester:${NC}"
+    ls -1 "$COURSES_DIR/$semester" 2>/dev/null | while read course; do
+        local file_count=$(find "$COURSES_DIR/$semester/$course" -name "*.tex" | wc -l)
+        echo "  ${GREEN}$course${NC} ($file_count files)"
+    done
+}
+
+# Compile current file
+cmd_compile() {
+    local file=$1
+    
+    if [[ -z "$file" ]]; then
+        # Find .tex file in current directory
+        file=$(ls *.tex 2>/dev/null | head -1)
+    fi
+    
+    if [[ -z "$file" || ! -f "$file" ]]; then
+        echo "${RED}Error:${NC} No .tex file found"
+        return 1
+    fi
+    
+    echo "${BLUE}Compiling $file...${NC}"
+    latexmk -pdf -interaction=nonstopmode "$file"
+    
+    if [[ $? -eq 0 ]]; then
+        echo "${GREEN}✓${NC} Compilation successful"
+        # Open PDF if on macOS
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            open "${file%.tex}.pdf"
+        fi
+    else
+        echo "${RED}✗${NC} Compilation failed"
+    fi
+}
+
+# Edit template
+cmd_template() {
+    local name=$1
+    
+    if [[ -z "$name" ]]; then
+        echo "${BLUE}Available templates:${NC}"
+        ls "$TEMPLATES_DIR"/*.tex 2>/dev/null | xargs -n 1 basename
+        ls "$TEMPLATES_DIR/preambles"/*.tex 2>/dev/null | xargs -n 1 basename | sed 's/^/  preambles\//'
+        return 0
+    fi
+    
+    local template_path="$TEMPLATES_DIR/$name"
+    
+    # Check if it's in preambles
+    if [[ ! -f "$template_path" ]]; then
+        template_path="$TEMPLATES_DIR/preambles/$name"
+    fi
+    
+    if [[ ! -f "$template_path" ]]; then
+        echo "${RED}Error:${NC} Template not found: $name"
+        return 1
+    fi
+    
+    nvim "$template_path"
+}
+
+# Show statistics
+cmd_stats() {
+    local semester=$(get_semester)
+    
+    if [[ ! -d "$COURSES_DIR/$semester" ]]; then
+        echo "${YELLOW}No data for $semester${NC}"
+        return 0
+    fi
+    
+    echo "${BLUE}Statistics for $semester:${NC}"
+    echo ""
+    
+    local total_files=$(find "$COURSES_DIR/$semester" -name "*.tex" | wc -l)
+    local total_words=$(find "$COURSES_DIR/$semester" -name "*.tex" -exec wc -w {} + | tail -1 | awk '{print $1}')
+    
+    echo "  Total documents: ${GREEN}$total_files${NC}"
+    echo "  Total words: ${GREEN}$total_words${NC}"
+    echo ""
+    
+    echo "${BLUE}By course:${NC}"
+    ls -1 "$COURSES_DIR/$semester" 2>/dev/null | while read course; do
+        local hw=$(find "$COURSES_DIR/$semester/$course/hw" -name "*.tex" 2>/dev/null | wc -l)
+        local notes=$(find "$COURSES_DIR/$semester/$course/notes" -name "*.tex" 2>/dev/null | wc -l)
+        echo "  ${GREEN}$course${NC}: $hw hw, $notes notes"
+    done
+}
+
+# Remove documents
+cmd_rm() {
+    local course=$1
+    local pattern=$2
+    local semester=$(get_semester)
+    
+    # Check if fzf is available
+    if ! command -v fzf &> /dev/null; then
+        echo "${RED}Error:${NC} This command requires fzf. Install with: brew install fzf"
+        return 1
+    fi
+    
+    # Build search path
+    if [[ -n "$course" ]]; then
+        local search_dir="$COURSES_DIR/$semester/$course"
+    else
+        local search_dir="$COURSES_DIR/$semester"
+    fi
+    
+    if [[ ! -d "$search_dir" ]]; then
+        echo "${RED}Error:${NC} Directory not found: $search_dir"
+        return 1
+    fi
+    
+    # Find files to delete
+    local files
+    if [[ -n "$pattern" ]]; then
+        files=$(find "$search_dir" -name "*.tex" -type f | grep "$pattern" | fzf --multi --preview 'head -20 {}' --header='Select files to delete (TAB to select multiple, ENTER to confirm)')
+    else
+        files=$(find "$search_dir" -name "*.tex" -type f | fzf --multi --preview 'head -20 {}' --header='Select files to delete (TAB to select multiple, ENTER to confirm)')
+    fi
+    
+    if [[ -z "$files" ]]; then
+        echo "${YELLOW}No files selected${NC}"
+        return 0
+    fi
+    
+    # Show what will be deleted
+    echo "${YELLOW}Files to delete:${NC}"
+    echo "$files" | while read file; do
+        echo "  ${RED}✗${NC} $file"
+    done
+    echo ""
+    
+    # Confirmation
+    echo -n "Are you sure you want to delete these files? [y/N] "
+    read -r response
+    
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        local count=0
+        echo "$files" | while read file; do
+            if [[ -f "$file" ]]; then
+                rm "$file"
+                ((count++))
+                echo "${GREEN}✓${NC} Deleted: $(basename "$file")"
+                
+                # Also delete associated PDF if it exists
+                local pdf_file="${file%.tex}.pdf"
+                if [[ -f "$pdf_file" ]]; then
+                    rm "$pdf_file"
+                    echo "${GREEN}✓${NC} Deleted: $(basename "$pdf_file")"
+                fi
+            fi
+        done
+        echo ""
+        echo "${GREEN}✓${NC} Deletion complete"
+    else
+        echo "${YELLOW}Cancelled${NC}"
+    fi
+}
+
+# Main command dispatcher
+case "$1" in
+    new)
+        shift
+        cmd_new "$@"
+        ;;
+    open)
+        shift
+        cmd_open "$@"
+        ;;
+    list|ls)
+        shift
+        cmd_list "$@"
+        ;;
+    clean)
+        shift
+        cmd_clean "$@"
+        ;;
+    courses)
+        cmd_courses
+        ;;
+    compile|c)
+        shift
+        cmd_compile "$@"
+        ;;
+    template|tmpl)
+        shift
+        cmd_template "$@"
+        ;;
+    stats)
+        cmd_stats
+        ;;
+    rm|delete)
+        shift
+        cmd_rm "$@"
+        ;;
+    help|--help|-h)
+        show_help
+        ;;
+    *)
+        if [[ -z "$1" ]]; then
+            show_help
+        else
+            echo "${RED}Error:${NC} Unknown command: $1"
+            echo "Run 'ltx help' for usage information"
+            exit 1
+        fi
+        ;;
+esac

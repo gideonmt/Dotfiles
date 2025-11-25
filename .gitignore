@@ -10,6 +10,7 @@ config/zsh/.zcompcache/
 config/zsh/.zcompdump
 config/zsh/.zsh_sessions/
 config/zsh/.zsh_history
+config/remycord
 
 # Ignore temporary or backup files
 *.swp

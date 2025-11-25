@@ -55,7 +55,10 @@ def report(days=30):
 
 def main():
     if len(sys.argv) < 2:
-        print("usage: tlog.py [CATEGORY|report N]")
+        print("usage: tlog.py [CATEGORY|report N|stop]")
+        print("categories:")
+        for c in CATS:
+            print(f"  {c}")
         return
     arg, *rest = sys.argv[1:]
     if arg == "report":
