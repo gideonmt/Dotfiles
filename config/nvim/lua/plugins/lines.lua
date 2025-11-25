@@ -1,9 +1,5 @@
 return {
    {
-      "lukas-reineke/virt-column.nvim",
-      opts = {},
-   },
-   {
       "m4xshen/smartcolumn.nvim",
       opts = {
          disabled_filetypes = {
