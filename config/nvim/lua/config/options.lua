@@ -1,36 +1,35 @@
-vim.opt.mousemoveevent = true
+local opt = vim.opt
 
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.scrolloff = 10
+-- UI
+opt.number = true
+opt.relativenumber = true
+opt.cursorline = true
+opt.cursorlineopt = "number"
+opt.scrolloff = 10
+opt.splitkeep = "screen"
+opt.splitright = true
+opt.splitbelow = true
+opt.mousemoveevent = true
 
-vim.opt.splitkeep = "screen"
+-- Search
+opt.ignorecase = true
+opt.smartcase = true
+opt.hlsearch = false
 
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
+-- Indentation
+opt.shiftwidth = 4
+opt.tabstop = 4
+opt.softtabstop = 4
+opt.expandtab = true
 
-vim.opt.shiftwidth = 4
-vim.opt.tabstop = 4
-vim.opt.softtabstop = 4
+-- Files
+opt.swapfile = false
+opt.undofile = true
 
--- use number of spaces to insert a <Tab>
-vim.opt.expandtab = true
+-- Performance
+opt.updatetime = 250
+opt.timeoutlen = 300
 
-vim.opt.swapfile = false
-
-vim.opt.splitright = true
-vim.opt.splitbelow = true
-
--- highlight the line number of the cursor
-vim.opt.cursorline = true
-vim.opt.cursorlineopt = "number"
-
-vim.opt.updatetime = 250
-vim.opt.timeoutlen = 300
-
--- disable cursor-styling
--- vim.opt.guicursor = ""
-
--- vim.opt.termguicolors = true
-
--- vim.opt.cmdheight = 0
+-- Leader keys
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "

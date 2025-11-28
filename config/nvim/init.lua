@@ -1,9 +1,22 @@
-require("config.options")
-require("config.mappings")
-require("config.autocmds")
-require("config.utils")
-require("config.lazy")
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+   vim.fn.system({
+      "git", "clone", "--filter=blob:none",
+      "https://github.com/folke/lazy.nvim.git",
+      "--branch=stable",
+      lazypath,
+   })
+end
+vim.opt.rtp:prepend(lazypath)
 
-vim.api.nvim_create_user_command("ConvertTabs", function()
-   vim.cmd([[%s/^\( \{2}\)\+/\=repeat(' ', len(submatch(0)) * 2)/g | noh]])
-end, {})
+-- Load core configuration
+require("config.options")
+require("config.keymaps")
+require("config.autocmds")
+require("config.commands")
+
+-- Load plugins
+require("lazy").setup("plugins", {
+   change_detection = { notify = false },
+})

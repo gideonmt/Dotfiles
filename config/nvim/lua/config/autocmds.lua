@@ -1,129 +1,83 @@
-vim.api.nvim_create_autocmd("ColorScheme", {
-   pattern = "*",
-   callback = function()
-      vim.api.nvim_set_hl(0, "FloatBorder", { fg = "#b4befe" })
-      vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = "#b4befe" })
-      vim.api.nvim_set_hl(0, "IblScope", { fg = "#b4befe" })
-   end,
-})
+local autocmd = vim.api.nvim_create_autocmd
+local augroup = vim.api.nvim_create_augroup
 
--- only highlight when searching
-vim.api.nvim_create_autocmd("CmdlineEnter", {
-   callback = function()
-      local cmd = vim.v.event.cmdtype
-      if cmd == "/" or cmd == "?" then
-         vim.opt.hlsearch = true
-      end
-   end,
-})
-vim.api.nvim_create_autocmd("CmdlineLeave", {
-   callback = function()
-      local cmd = vim.v.event.cmdtype
-      if cmd == "/" or cmd == "?" then
-         vim.opt.hlsearch = false
-      end
-   end,
-})
-
--- Highlight when yanking
-vim.api.nvim_create_autocmd("TextYankPost", {
+-- Highlight on yank
+autocmd("TextYankPost", {
+   group = augroup("HighlightYank", { clear = true }),
    callback = function()
       vim.highlight.on_yank({ timeout = 200 })
    end,
 })
 
 -- Disable auto comment
-vim.api.nvim_create_autocmd("BufEnter", {
+autocmd("BufEnter", {
+   group = augroup("DisableAutoComment", { clear = true }),
    callback = function()
-      vim.opt.formatoptions = { c = false, r = false, o = false }
+      vim.opt.formatoptions:remove({ "c", "r", "o" })
    end,
 })
 
--- turn on spell check for markdown and text file
-vim.api.nvim_create_autocmd("BufEnter", {
-   pattern = { "*.md" },
+-- Spell check for markdown
+autocmd("FileType", {
+   group = augroup("MarkdownSpell", { clear = true }),
+   pattern = { "markdown", "text" },
    callback = function()
       vim.opt_local.spell = true
    end,
 })
 
--- keymap for .cpp file
-vim.api.nvim_create_autocmd("BufEnter", {
-   pattern = { "*.cpp", "*.cc" },
+-- Language-specific settings
+autocmd("FileType", {
+   group = augroup("LuaSettings", { clear = true }),
+   pattern = "lua",
    callback = function()
-      vim.keymap.set(
-         "n",
-         "<Leader>e",
-         ":terminal ./a.out<CR>",
-         { silent = true }
-      )
-      -- vim.keymap.set("n", "<Leader>e", ":!./sfml-app<CR>",
-      --    { silent = true })
+      vim.opt_local.shiftwidth = 3
+      vim.opt_local.tabstop = 3
+      vim.opt_local.softtabstop = 3
    end,
 })
 
--- tab format for .lua file
-vim.api.nvim_create_autocmd("BufEnter", {
-   pattern = { "*.lua" },
+-- Run programs by filetype
+local RunGroup = augroup("QuickRun", { clear = true })
+
+autocmd("FileType", {
+   group = RunGroup,
+   pattern = "cpp",
    callback = function()
-      vim.opt.shiftwidth = 3
-      vim.opt.tabstop = 3
-      vim.opt.softtabstop = 3
-      -- vim.opt_local.colorcolumn = {70, 80}
+      vim.keymap.set("n", "<Leader>r", ":split | terminal ./a.out<CR>", { buffer = true })
    end,
 })
 
--- keymap for .go file
-vim.api.nvim_create_autocmd("BufEnter", {
-   pattern = { "*.go" },
+autocmd("FileType", {
+   group = RunGroup,
+   pattern = "go",
    callback = function()
-      vim.keymap.set(
-         "n",
-         "<Leader>e",
-         ":terminal go run %<CR>",
-         { silent = true }
-      )
+      vim.keymap.set("n", "<Leader>r", ":split | terminal go run %<CR>", { buffer = true })
    end,
 })
 
--- keymap for .py file
-vim.api.nvim_create_autocmd("BufEnter", {
-   pattern = { "*.py" },
+autocmd("FileType", {
+   group = RunGroup,
+   pattern = "python",
    callback = function()
-      vim.keymap.set(
-         "n",
-         "<Leader>e",
-         ":terminal python3 %<CR>",
-         { silent = true }
-      )
+      vim.keymap.set("n", "<Leader>r", ":split | terminal python3 %<CR>", { buffer = true })
    end,
 })
 
--- unmap arrow keys to force using hjkl
+-- Markdown auto-compile
+autocmd("BufWritePost", {
+   group = augroup("MarkdownAutoPDF", { clear = true }),
+   pattern = "*.md",
+   callback = function()
+      vim.cmd("silent! MdPDF")
+   end,
+})
+
+-- Disable arrow keys (force hjkl)
 local function warn_arrows()
    vim.notify("Use hjkl instead of arrow keys", vim.log.levels.WARN)
 end
 
-for _, key in ipairs({ "<Up>", "<Down>", "<Left>", "<Right>" }) do
-   vim.keymap.set(
-      { "n", "i", "v", "c" },
-      key,
-      warn_arrows,
-      { noremap = true, silent = true }
-   )
+for _, key in ipairs({ "<Up>", "<Down>" }) do
+   vim.keymap.set({ "n", "i", "v" }, key, warn_arrows, { noremap = true })
 end
-
--- map left and right arrow keys to switch tabs in normal mode
-vim.keymap.set(
-   "n",
-   "<Left>",
-   ":tabprevious<CR>",
-   { noremap = true, silent = true }
-)
-
-vim.keymap.set(
-   "n",
-   "<Right>",
-   ":tabnext<CR>",
-   { noremap = true, silent = true }
-)
