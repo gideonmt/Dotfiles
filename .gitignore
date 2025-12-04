@@ -2,8 +2,8 @@ config/github-copilot/
 config/linearmouse/
 config/spotify-tui/client.yml
 config/spotify-tui/.spotify_token_cache.json
-config/nvim/lazy-lock.json
 config/thefuck/__pycache__/
+config/qBittorrent
 
 # Ignore cache and unnecessary files in /config/zsh/
 config/zsh/.zcompcache/

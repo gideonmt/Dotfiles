@@ -17,23 +17,12 @@ autocmd("BufEnter", {
    end,
 })
 
--- Spell check for markdown
+-- Spell check for markdown and text
 autocmd("FileType", {
    group = augroup("MarkdownSpell", { clear = true }),
    pattern = { "markdown", "text" },
    callback = function()
       vim.opt_local.spell = true
-   end,
-})
-
--- Language-specific settings
-autocmd("FileType", {
-   group = augroup("LuaSettings", { clear = true }),
-   pattern = "lua",
-   callback = function()
-      vim.opt_local.shiftwidth = 3
-      vim.opt_local.tabstop = 3
-      vim.opt_local.softtabstop = 3
    end,
 })
 
@@ -44,7 +33,7 @@ autocmd("FileType", {
    group = RunGroup,
    pattern = "cpp",
    callback = function()
-      vim.keymap.set("n", "<Leader>r", ":split | terminal ./a.out<CR>", { buffer = true })
+      vim.keymap.set("n", "<Leader>r", ":split | kitty ./a.out<CR>", { buffer = true })
    end,
 })
 
@@ -52,7 +41,7 @@ autocmd("FileType", {
    group = RunGroup,
    pattern = "go",
    callback = function()
-      vim.keymap.set("n", "<Leader>r", ":split | terminal go run %<CR>", { buffer = true })
+      vim.keymap.set("n", "<Leader>r", ":split | kitty go run %<CR>", { buffer = true })
    end,
 })
 
@@ -60,20 +49,11 @@ autocmd("FileType", {
    group = RunGroup,
    pattern = "python",
    callback = function()
-      vim.keymap.set("n", "<Leader>r", ":split | terminal python3 %<CR>", { buffer = true })
+      vim.keymap.set("n", "<Leader>r", ":split | kitty python3 %<CR>", { buffer = true })
    end,
 })
 
--- Markdown auto-compile
-autocmd("BufWritePost", {
-   group = augroup("MarkdownAutoPDF", { clear = true }),
-   pattern = "*.md",
-   callback = function()
-      vim.cmd("silent! MdPDF")
-   end,
-})
-
--- Disable arrow keys (force hjkl)
+-- Disable arrow keys
 local function warn_arrows()
    vim.notify("Use hjkl instead of arrow keys", vim.log.levels.WARN)
 end
