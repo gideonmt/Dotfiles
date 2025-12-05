@@ -60,9 +60,6 @@ vim.pack.add({
    
    -- LaTeX
    { src = "https://github.com/lervag/vimtex" },
-
-   -- Tailwind CSS
-   { src = "https://github.com/tailwindlabs/tailwindcss-intellisense", name = "tailwindcss" },
 }, {
    load = true,
    confirm = true,

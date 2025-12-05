@@ -7,18 +7,12 @@ map("n", "<C-j>", "<C-w>j", opts)
 map("n", "<C-k>", "<C-w>k", opts)
 map("n", "<C-l>", "<C-w>l", opts)
 
--- Window resizing
-map("n", "<C-Up>", ":resize +2<CR>", opts)
-map("n", "<C-Down>", ":resize -2<CR>", opts)
-map("n", "<C-Left>", ":vertical resize -2<CR>", opts)
-map("n", "<C-Right>", ":vertical resize +2<CR>", opts)
-
 -- Tab navigation
 map("n", "<Leader>tn", ":tabnew<CR>", opts)
 map("n", "<Leader>tc", ":tabclose<CR>", opts)
 map("n", "<Leader>to", ":tabonly<CR>", opts)
-map("n", "<Leader>H", ":tabprevious<CR>", opts)
-map("n", "<Leader>L", ":tabnext<CR>", opts)
+map("n", "<Leader>h", ":tabprevious<CR>", opts)
+map("n", "<Leader>l", ":tabnext<CR>", opts)
 
 -- Buffer navigation
 map("n", "[b", ":bprevious<CR>", opts)
@@ -53,8 +47,8 @@ map("n", "<Leader>cc", ":cclose<CR>", opts)
 -- Center screen after jumps
 map("n", "n", "nzzzv", opts)
 map("n", "N", "Nzzzv", opts)
-map("n", "<C-d>", "<C-d>zz", opts)
-map("n", "<C-u>", "<C-u>zz", opts)
+map("n", "<C-j>", "<C-d>zz", opts)
+map("n", "<C-k>", "<C-u>zz", opts)
 
 -- Join lines without moving cursor
 map("n", "<Leader>J", "mzJ`z", opts)
