@@ -48,7 +48,7 @@ alias dsa='cd ~/Desktop/School/DSA'
 #alias todo="python3 ~/Dotfiles/bin/todo.py"
 #alias tlog="python3 ~/Dotfiles/bin/tlog.py"
 #alias goals="python3 ~/Dotfiles/bin/goals.py"
-
+eval "$(zoxide init zsh)"
 export PATH="$HOME/Dotfiles/bin:$PATH"
 
 # default editor
