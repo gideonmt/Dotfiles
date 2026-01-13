@@ -4,4 +4,4 @@ kitty +kitten icat --clear --stdin no --silent --transfer-mode file < /dev/null 
 
 # Delete the cached thumbnail
 TEMPDIR="${HOME}/Library/Caches/lf"
-rm -f "$TEMPDIR/thumbnail.png"
+rm -f "$TEMPDIR/*.png"

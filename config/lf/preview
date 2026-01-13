@@ -1,50 +1,172 @@
 #!/usr/bin/env bash
-file=$1
-w=$2
-h=$3
-x=$4
-y=$5
+file="$1"
+w="$2"
+h="$3"
+x="$4"
+y="$5"
 
-preview() {
-    kitty +kitten icat --silent --stdin no --transfer-mode file --place "${w}x${h}@${x}x${y}" "$1" < /dev/null > /dev/tty
-}
-
-TEMPDIR="${HOME}/Library/Caches/lf"
-
-# Ensure the temp directory exists
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    TEMPDIR="${HOME}/Library/Caches/lf"
+else
+    TEMPDIR="${XDG_CACHE_HOME:-$HOME/.cache}/lf"
+fi
 mkdir -p "$TEMPDIR"
 
-file="$1"; shift
-case "$(basename "$file" | tr '[A-Z]' '[a-z]')" in
-    *.tar*) tar tf "$file" ;;
-    *.zip) unzip -l "$file" ;;
-    *.rar) unrar l "$file" ;;
-    *.7z) 7z l "$file" ;;
-    *.avi|*.mp4|*.mkv)
-        thumbnail="$TEMPDIR/thumbnail.png"
-        ffmpegthumbnailer -i "$file" -o "$thumbnail" -s 900
-        preview "$thumbnail"
+preview() {
+    [[ -f "$1" ]] || return 1
+    kitty +kitten icat \
+        --silent \
+        --stdin no \
+        --transfer-mode file \
+        --place "${w}x${h}@${x}x${y}" \
+        "$1" < /dev/null > /dev/tty
+}
+
+ext="${file##*.}"
+ext_lower="$(echo "$ext" | tr '[:upper:]' '[:lower:]')"
+
+if command -v md5sum >/dev/null 2>&1; then
+    thumbnail="$TEMPDIR/$(echo "$file" | md5sum | cut -d' ' -f1).png"
+elif command -v md5 >/dev/null 2>&1; then
+    thumbnail="$TEMPDIR/$(echo "$file" | md5 -q).png"
+else
+    thumbnail="$TEMPDIR/thumbnail.png"
+fi
+
+case "$ext_lower" in
+    # Archives
+    tar|tgz|tbz|tbz2|txz|tlz)
+        tar tf "$file" 2>/dev/null || echo "Failed to read archive"
         ;;
-    *.pdf)
-        thumbnail="$TEMPDIR/thumbnail"
-        pdftocairo -png -singlefile -rx 75 -ry 75 "$file" "$thumbnail"
-        preview "${thumbnail}.png"
+    gz|bz2|xz)
+        tar tf "$file" 2>/dev/null || file "$file"
         ;;
-    *.jpg|*.jpeg|*.png|*.webp|*.gif)
+    zip)
+        unzip -l "$file" 2>/dev/null || echo "Failed to read zip"
+        ;;
+    rar)
+        unrar l "$file" 2>/dev/null || echo "Failed to read rar"
+        ;;
+    7z)
+        7z l "$file" 2>/dev/null || echo "Failed to read 7z"
+        ;;
+    
+    # Videos
+    avi|mp4|mkv|mov|webm|flv|wmv|m4v|mpg|mpeg)
+        if command -v ffmpegthumbnailer >/dev/null 2>&1; then
+            ffmpegthumbnailer -i "$file" -o "$thumbnail" -s 900 2>/dev/null && preview "$thumbnail"
+        else
+            mediainfo "$file" 2>/dev/null || file "$file"
+        fi
+        ;;
+    
+    # PDFs
+    pdf)
+        if [[ -f "$thumbnail" && "$thumbnail" -nt "$file" ]]; then
+            preview "$thumbnail"
+        elif command -v pdftocairo >/dev/null 2>&1; then
+            pdftocairo -png -singlefile -f 1 -l 1 -scale-to-x 1200 -scale-to-y -1 "$file" "${thumbnail%.png}" 2>/dev/null
+            [[ -f "$thumbnail" ]] && preview "$thumbnail"
+        elif command -v pdftotext >/dev/null 2>&1; then
+            pdftotext -l 10 "$file" - 2>/dev/null
+        else
+            echo "PDF: $(basename "$file")"
+        fi
+        ;;   
+
+    # Images
+    jpg|jpeg|png|webp|gif|bmp|tiff|tif|ico)
         preview "$file"
         ;;
-    *.ttf|*.otf|*.woff)
-        thumbnail="$TEMPDIR/thumbnail.png"
-        fontpreview -i "$file" -o "$thumbnail"
-        preview "$thumbnail"
+    
+    # Fonts
+    ttf|otf|woff|woff2)
+        if command -v fontpreview >/dev/null 2>&1; then
+            fontpreview -i "$file" -o "$thumbnail" 2>/dev/null && preview "$thumbnail"
+        else
+            file "$file"
+        fi
         ;;
-    *.svg)
-        thumbnail="$TEMPDIR/thumbnail.png"
-        convert "$file" "$thumbnail"
-        preview "$thumbnail"
+    
+    # SVG
+    svg)
+        if command -v convert >/dev/null 2>&1; then
+            convert -background none -density 150 "$file" "$thumbnail" 2>/dev/null && preview "$thumbnail"
+        elif command -v rsvg-convert >/dev/null 2>&1; then
+            rsvg-convert -w 1920 "$file" -o "$thumbnail" 2>/dev/null && preview "$thumbnail"
+        else
+            cat "$file" | head -n 50
+        fi
         ;;
+    
+    # Audio
+    mp3|flac|m4a|aac|ogg|opus|wav|wma)
+        if command -v mediainfo >/dev/null 2>&1; then
+            mediainfo "$file"
+        elif command -v ffprobe >/dev/null 2>&1; then
+            ffprobe -hide_banner "$file" 2>&1
+        else
+            file "$file"
+        fi
+        ;;
+    
+    # Microsoft :(
+    docx|doc|odt)
+        if command -v pandoc >/dev/null 2>&1; then
+            pandoc "$file" -t plain 2>/dev/null | head -n 200
+        else
+            file "$file"
+        fi
+        ;;
+    xlsx|xls|ods)
+        if command -v in2csv >/dev/null 2>&1; then
+            in2csv "$file" 2>/dev/null | head -n 100
+        else
+            file "$file"
+        fi
+        ;;
+    
+    # Markdown
+    md|markdown)
+        if command -v glow >/dev/null 2>&1; then
+            glow -s dark "$file" 2>/dev/null
+        elif command -v bat >/dev/null 2>&1; then
+            bat --style numbers --color=always --theme=base16 "$file"
+        else
+            cat "$file"
+        fi
+        ;;
+    
+    # JSON
+    json)
+        if command -v jq >/dev/null 2>&1; then
+            jq -C . "$file" 2>/dev/null || cat "$file"
+        elif command -v bat >/dev/null 2>&1; then
+            bat --style numbers --color=always --theme=base16 -l json "$file"
+        else
+            cat "$file"
+        fi
+        ;;
+    
+    # Default
     *)
-        bat --style numbers --color=always --theme=base16 "$file"
+        if [[ -d "$file" ]]; then
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                ls -lAh "$file" 2>/dev/null
+            else
+                ls -lAh --color=always "$file" 2>/dev/null
+            fi
+        elif [[ -f "$file" ]]; then
+            if command -v bat >/dev/null 2>&1; then
+                bat --style numbers --color=always --theme=base16 "$file" 2>/dev/null
+            elif command -v highlight >/dev/null 2>&1; then
+                highlight --out-format=ansi --force "$file" 2>/dev/null
+            else
+                cat "$file"
+            fi
+        else
+            file "$file"
+        fi
         ;;
 esac
 exit 127
