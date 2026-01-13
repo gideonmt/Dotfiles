@@ -1,9 +1,6 @@
 -- Surround
 require("nvim-surround").setup()
 
--- Auto tag
-require("nvim-ts-autotag").setup()
-
 -- Marks
 require("marks").setup({
    default_mappings = true,

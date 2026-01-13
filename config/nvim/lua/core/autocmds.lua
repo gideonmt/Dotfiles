@@ -53,6 +53,17 @@ autocmd("FileType", {
    end,
 })
 
+-- Force Treesitter syntax highlighting instead of regex
+autocmd("FileType", {
+   group = augroup("TreesitterHighlight", { clear = true }),
+   pattern = "*",
+   callback = function()
+      if vim.treesitter.language.get_lang(vim.bo.filetype) then
+         vim.treesitter.start()
+      end
+   end,
+})
+
 -- Disable arrow keys
 local function warn_arrows()
    vim.notify("Use hjkl instead of arrow keys", vim.log.levels.WARN)

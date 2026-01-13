@@ -50,7 +50,6 @@ vim.pack.add({
 
    -- Editor enhancements
    { src = "https://github.com/kylechui/nvim-surround" },
-   { src = "https://github.com/windwp/nvim-ts-autotag" },
    { src = "https://github.com/norcalli/nvim-colorizer.lua" },
    { src = "https://github.com/yamatsum/nvim-cursorline" },
    { src = "https://github.com/chentoast/marks.nvim" },
@@ -60,6 +59,9 @@ vim.pack.add({
    
    -- LaTeX
    { src = "https://github.com/lervag/vimtex" },
+
+   -- Typst
+   { src = "https://github.com/kaarmu/typst.vim"},
 }, {
    load = true,
    confirm = true,
